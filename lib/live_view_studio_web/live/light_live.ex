@@ -3,7 +3,14 @@ defmodule LiveViewStudioWeb.LightLive do
   import LiveViewStudio.Helpers
 
   def mount(_params, _session, socket) do
-    socket = assign(socket, brightness: 10, slider_value: 50)
+    socket =
+      assign(socket,
+        brightness: 10,
+        slider_value: 50,
+        input_check: false,
+        temperature: "3000"
+      )
+
     IO.inspect(self(), label: "MOUNT")
     {:ok, socket}
   end
@@ -15,7 +22,7 @@ defmodule LiveViewStudioWeb.LightLive do
     <h1>Front Porch Light</h1>
     <div id="light">
       <div class="meter">
-        <span style={"width: #{@brightness}%"}>
+        <span style={"width: #{@brightness}%; background:#{temp_color(@temperature)}" }>
           <%= assigns.brightness %>%
         </span>
       </div>
@@ -48,13 +55,37 @@ defmodule LiveViewStudioWeb.LightLive do
           value={@slider_value}
         />
       </form>
+
+      <br />
+      <form phx-change="temperature-change">
+        <div class="temps">
+          <%= for temp <- ["3000", "4000", "5000"] do %>
+            <div>
+              <input
+                type="radio"
+                id={temp}
+                name="temp"
+                value={temp}
+                checked={temp == @temperature}
+              />
+              <label for={temp}><%= temp %></label>
+            </div>
+          <% end %>
+        </div>
+      </form>
     </div>
     """
   end
 
+  def handle_event("temperature-change", %{"temp" => temperature}, socket) do
+    red_map(temperature)
+    socket = assign(socket, temperature: temperature)
+    {:noreply, socket}
+  end
+
   def handle_event("slider-change", params, socket) do
     brightness = String.to_integer(params["brightness"])
-    red_map(brightness)
+    # red_map(brightness)
     socket = assign(socket, brightness: brightness)
     {:noreply, socket}
   end
@@ -95,4 +126,8 @@ defmodule LiveViewStudioWeb.LightLive do
     socket = update(socket, :brightness, &max(&1 - 10, 0))
     {:noreply, socket}
   end
+
+  defp temp_color("3000"), do: "#F1C40D"
+  defp temp_color("4000"), do: "#FEFF66"
+  defp temp_color("5000"), do: "#99CCFF"
 end
