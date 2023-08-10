@@ -6,7 +6,8 @@ defmodule LiveViewStudioWeb.VehiclesLive do
     socket =
       assign(socket,
         vehicles: [],
-        loading: false
+        loading: false,
+        matches: %{}
       )
 
     {:ok, socket}
@@ -16,7 +17,7 @@ defmodule LiveViewStudioWeb.VehiclesLive do
     ~H"""
     <h1>🚙 Find a Vehicle 🚘</h1>
     <div id="vehicles">
-      <form phx-submit="search">
+      <form phx-submit="search" phx-change="suggest">
         <input
           type="text"
           name="query"
@@ -24,6 +25,7 @@ defmodule LiveViewStudioWeb.VehiclesLive do
           placeholder="Make or model"
           autofocus
           autocomplete="off"
+          list="matches"
         />
 
         <button>
@@ -31,6 +33,12 @@ defmodule LiveViewStudioWeb.VehiclesLive do
         </button>
       </form>
       <div :if={@loading} class="loader">Loading...</div>
+
+      <datalist id="matches">
+        <option :for={match <- @matches} value={match}>
+          <%= match %>
+        </option>
+      </datalist>
 
       <div class="vehicles">
         <ul>
@@ -49,6 +57,13 @@ defmodule LiveViewStudioWeb.VehiclesLive do
       </div>
     </div>
     """
+  end
+
+  def handle_event("suggest", %{"query" => query}, socket) do
+    socket = assign(socket, matches: Vehicles.suggest(query))
+
+    LiveViewStudio.Helpers.red_map(socket)
+    {:noreply, socket}
   end
 
   def handle_event("search", %{"query" => vehicle}, socket) do

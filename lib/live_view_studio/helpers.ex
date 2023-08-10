@@ -33,4 +33,19 @@ defmodule LiveViewStudio.Helpers do
     (IO.ANSI.magenta_background() <> "#{inspect(element)}" <> IO.ANSI.reset())
     |> IO.puts()
   end
+
+  def yellow_map(element) do
+    (IO.ANSI.yellow_background() <> "#{inspect(element)}" <> IO.ANSI.reset())
+    |> IO.puts()
+  end
+
+  def blue_map(element) do
+    (IO.ANSI.blue_background() <> "#{inspect(element)}" <> IO.ANSI.reset())
+    |> IO.puts()
+  end
+
+  def green_map(element) do
+    (IO.ANSI.green_background() <> "#{inspect(element)}" <> IO.ANSI.reset())
+    |> IO.puts()
+  end
 end
